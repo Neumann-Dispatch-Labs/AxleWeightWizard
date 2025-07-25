@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Axle-Weight Wizard Pro</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    
+    .glass-light {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    
+    .gradient-glow {
+      background: linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6);
+      background-size: 200% 200%;
+      animation: gradientShift 4s ease-in-out infinite;
+    }
+    
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .neon-glow {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+    }
+    
+    .progress-bar {
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .scale-in {
+      animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    @keyframes scaleIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    input:focus {
+      transform: scale(1.02);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            success: '#10b981',
+            warning: '#f59e0b', 
+            error: '#ef4444',
+            glass: 'rgba(15, 23, 42, 0.8)',
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white min-h-screen font-light" x-data="axleWizard()">
+
+  <!-- Animated Background -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow" style="animation-delay: 1s;"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse-slow" style="animation-delay: 2s;"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="relative z-10 text-center py-8 px-6">
+    <div class="floating max-w-md mx-auto">
+      <div class="glass rounded-3xl p-8 neon-glow">
+        <div class="flex justify-center items-center gap-4 mb-4">
+          <div class="gradient-glow p-3 rounded-2xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Axle-Weight Wizard
+          </h1>
+        </div>
+        <p class="text-slate-300 text-sm">Professional Weight Distribution Calculator</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App -->
+  <main class="relative z-10 max-w-5xl mx-auto px-6 space-y-8">
+    
+    <!-- Input Section -->
+    <section class="scale-in">
+      <div class="glass rounded-3xl p-8 shadow-2xl">
+        <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+          <div class="w-2 h-8 bg-gradient-to-b from-emerald-400 to-blue-500 rounded-full"></div>
+          Enter Axle Weights (lbs)
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-slate-300">Steer Axle</label>
+            <div class="relative">
+              <input 
+                type="number" 
+                x-model.number="steer" 
+                placeholder="0"
+                class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/30 rounded-xl text-white placeholder-slate-400 transition-all duration-300 focus:border-emerald-400 focus:outline-none" 
+              />
+              <div class="absolute right-3 top-3 text-xs text-slate-400">Max: 12,000</div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-slate-300">Drive Axle</label>
+            <div class="relative">
+              <input 
+                type="number" 
+                x-model.number="drive" 
+                placeholder="0"
+                class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/30 rounded-xl text-white placeholder-slate-400 transition-all duration-300 focus:border-emerald-400 focus:outline-none" 
+              />
+              <div class="absolute right-3 top-3 text-xs text-slate-400">Max: 34,000</div>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-slate-300">Trailer Axle</label>
+            <div class="relative">
+              <input 
+                type="number" 
+                x-model.number="trailer" 
+                placeholder="0"
+                class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/30 rounded-xl text-white placeholder-slate-400 transition-all duration-300 focus:border-emerald-400 focus:outline-none" 
+              />
+              <div class="absolute right-3 top-3 text-xs text-slate-400">Max: 34,000</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 flex justify-center">
+          <button 
+            @click="calculate" 
+            class="btn-primary px-8 py-4 rounded-2xl text-white font-semibold text-lg flex items-center gap-3 transform transition-all duration-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Calculate Adjustments
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gauges Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <template x-for="(axle, key) in gaugeData" :key="key">
+        <div class="glass-light rounded-2xl p-6 transform transition-all duration-300 hover:scale-105">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-lg" x-text="axle.label"></h3>
+            <div class="text-right">
+              <div class="text-2xl font-bold" x-text="axle.weight.toLocaleString()"></div>
+              <div class="text-xs text-slate-400" x-text="'Limit: ' + axle.limit.toLocaleString()"></div>
+            </div>
+          </div>
+          <div class="relative">
+            <div class="w-full h-3 bg-slate-700/50 rounded-full overflow-hidden">
+              <div 
+                class="progress-bar h-full rounded-full transition-all duration-1000 ease-out" 
+                :class="axle.color.replace('bg-', 'bg-gradient-to-r from-') + ' to-opacity-80'"
+                :style="`width: ${Math.min(100, (axle.weight / axle.limit) * 100)}%`"
+              ></div>
+            </div>
+            <div class="mt-2 flex justify-between text-xs text-slate-400">
+              <span>0</span>
+              <span x-text="Math.round((axle.weight / axle.limit) * 100) + '%'"></span>
+              <span x-text="axle.limit.toLocaleString()"></span>
+            </div>
+          </div>
+        </div>
+      </template>
+    </section>
+
+    <!-- Results Panel -->
+    <section class="glass rounded-3xl p-8 shadow-2xl">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+        <div class="w-2 h-8 bg-gradient-to-b from-blue-400 to-purple-500 rounded-full"></div>
+        Adjustment Recommendations
+      </h2>
+      <div class="min-h-[100px] flex items-center">
+        <div x-html="adviceHtml" class="w-full"></div>
+      </div>
+    </section>
+
+    <!-- Enhanced Log Section -->
+    <section class="glass rounded-3xl p-8 shadow-2xl">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
+        <div class="w-2 h-8 bg-gradient-to-b from-purple-400 to-pink-500 rounded-full"></div>
+        Recent Calculations
+      </h2>
+      <div class="space-y-3 max-h-64 overflow-y-auto">
+        <template x-for="(log, index) in logs.slice().reverse().slice(0, 8)" :key="index">
+          <div class="glass-light rounded-xl p-4 transform transition-all duration-300 hover:scale-[1.02]">
+            <div x-html="log" class="text-sm text-slate-300"></div>
+          </div>
+        </template>
+        <div x-show="logs.length === 0" class="text-center text-slate-400 py-8">
+          No calculations yet. Enter weights above to get started.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 text-center py-8 mt-16">
+    <div class="glass rounded-2xl max-w-md mx-auto p-4">
+      <p class="text-xs text-slate-400 flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+        For educational use only. Always verify on certified CAT scale.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    function axleWizard() {
+      const LEGAL = {
+        steer: 12000,
+        drive: 34000,
+        trailer: 34000,
+        gross: 80000
+      };
+      
+      // Updated based on research: 5th wheel ~500lbs/notch, tandems ~350lbs/hole
+      const PER_NOTCH_5TH = 500;
+      const PER_NOTCH_TANDEM = 350;
+
+      return {
+        steer: 0,
+        drive: 0,
+        trailer: 0,
+        adviceHtml: '<div class="text-center text-slate-400 py-8">Enter axle weights and click "Calculate Adjustments" to get started.</div>',
+        logs: [],
+        
+        get gaugeData() {
+          return {
+            steer: this.gaugeBar(this.steer, LEGAL.steer, "Steer Axle"),
+            drive: this.gaugeBar(this.drive, LEGAL.drive, "Drive Axle"), 
+            trailer: this.gaugeBar(this.trailer, LEGAL.trailer, "Trailer Axle"),
+            gross: this.gaugeBar(this.steer + this.drive + this.trailer, LEGAL.gross, "Gross Weight"),
+          };
+        },
+        
+        gaugeBar(weight, limit, label) {
+          let ratio = weight / limit;
+          let color = ratio > 1 ? 'bg-red-500' : ratio > 0.9 ? 'bg-yellow-500' : 'bg-emerald-500';
+          return { label, weight, limit, color };
+        },
+        
+        calculate() {
+          const s = this.steer, d = this.drive, t = this.trailer;
+          const g = s + d + t;
+          let advice = [];
+          let hasViolations = false;
+
+          // Check steer axle and 5th wheel adjustment
+          const Δs = s - LEGAL.steer;
+          if (Math.abs(Δs) > 50) { // 50lb tolerance
+            const notches = Math.ceil(Math.abs(Δs) / PER_NOTCH_5TH);
+            const dir = Δs > 0 ? "backward (toward trailer)" : "forward (toward cab)";
+            advice.push(`<div class="flex items-center gap-3 p-4 bg-blue-500/20 rounded-xl border border-blue-500/30">
+              <div class="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">🔧</div>
+              <div>
+                <div class="font-semibold text-blue-300">5th Wheel Adjustment</div>
+                <div class="text-sm">Slide 5th-wheel <strong>${dir}</strong> approximately <strong>${notches}</strong> notches</div>
+                <div class="text-xs text-slate-400 mt-1">This transfers weight between steer and drive axles</div>
+              </div>
+            </div>`);
+            hasViolations = true;
+          }
+
+          // Check tandem axles
+          const Δd = d - LEGAL.drive;
+          const Δt = t - LEGAL.trailer;
+          if (Math.abs(Δd) > 50 || Math.abs(Δt) > 50) {
+            const avgOverage = (Math.abs(Δd) + Math.abs(Δt)) / 2;
+            const holes = Math.ceil(avgOverage / PER_NOTCH_TANDEM);
+            const dir = Δd > 0 ? "backward (toward ICC bumper)" : "forward (toward trailer nose)";
+            advice.push(`<div class="flex items-center gap-3 p-4 bg-purple-500/20 rounded-xl border border-purple-500/30">
+              <div class="flex-shrink-0 w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">⚙️</div>
+              <div>
+                <div class="font-semibold text-purple-300">Trailer Tandem Adjustment</div>
+                <div class="text-sm">Slide trailer tandems <strong>${dir}</strong> approximately <strong>${holes}</strong> holes</div>
+                <div class="text-xs text-slate-400 mt-1">This redistributes weight between drive and trailer axles</div>
+              </div>
+            </div>`);
+            hasViolations = true;
+          }
+
+          // Check gross weight
+          if (g > LEGAL.gross) {
+            advice.push(`<div class="flex items-center gap-3 p-4 bg-red-500/20 rounded-xl border border-red-500/30">
+              <div class="flex-shrink-0 w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">⚠️</div>
+              <div>
+                <div class="font-semibold text-red-300">Overweight Warning</div>
+                <div class="text-sm">Gross weight exceeds 80,000 lbs by <strong>${(g - LEGAL.gross).toLocaleString()}</strong> lbs</div>
+                <div class="text-xs text-slate-400 mt-1">Remove freight or redistribute load before proceeding</div>
+              </div>
+            </div>`);
+            hasViolations = true;
+          }
+
+          // Success message
+          if (!hasViolations && g > 0) {
+            advice.push(`<div class="flex items-center gap-3 p-6 bg-emerald-500/20 rounded-xl border border-emerald-500/30">
+              <div class="flex-shrink-0 w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center">✅</div>
+              <div>
+                <div class="font-semibold text-emerald-300 text-lg">All Clear!</div>
+                <div class="text-sm">All axles are within legal limits. You're good to roll! 🎉</div>
+                <div class="text-xs text-slate-400 mt-1">Total: ${g.toLocaleString()} lbs | Remaining capacity: ${(LEGAL.gross - g).toLocaleString()} lbs</div>
+              </div>
+            </div>`);
+          }
+
+          this.adviceHtml = advice.length > 0 ? `<div class="space-y-4">${advice.join('')}</div>` : 
+            '<div class="text-center text-slate-400 py-8">Enter valid weights to see recommendations.</div>';
+          
+          if (g > 0) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `<div class="flex justify-between items-center">
+              <div><span class="font-mono text-xs text-slate-500">${timestamp}</span> - S:${s.toLocaleString()} | D:${d.toLocaleString()} | T:${t.toLocaleString()}</div>
+              <div class="text-xs ${hasViolations ? 'text-yellow-400' : 'text-emerald-400'}">${hasViolations ? 'Needs adjustment' : 'Legal'}</div>
+            </div>`;
+            this.logs.push(logEntry);
+          }
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
